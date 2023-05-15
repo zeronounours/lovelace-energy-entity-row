@@ -22,14 +22,24 @@ resources:
 **Note 2:** To work properly, an `energy-date-selection` card must be included
 in the view
 
+![Example GIF](img/energy-entity-row-demo.gif)
+
 ```yaml
-type: entities
-title: Default
-entities:
-  - sensor.smart_plug_energy
-  - type: custom:energy-entity-row
-    entity: sensor.smart_plug_energy
+- type: energy-date-selection
+- type: entities
+  entities:
+    - type: section
+      label: Basic energy sensor
+    - entity: sensor.all_plug_energy
+    - entity: sensor.all_heating_energy
+    - type: section
+      label: With Energy Entity Row
+    - type: custom:energy-entity-row
+      entity: sensor.all_plug_energy
+    - type: custom:energy-entity-row
+      entity: sensor.all_heating_energy
 ```
+
 
 ## Options
 
