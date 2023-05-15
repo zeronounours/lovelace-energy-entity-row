@@ -1,6 +1,6 @@
 {
   "name": "energy-entity-row",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "description": "Lovelace energy entity row to integrate with energy-date-selection",
   "keywords": [

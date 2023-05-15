@@ -1,5 +1,7 @@
 # energy-entity-row
 
+[![GitHub Release][releases-shield]][releases]
+[![License][license-shield]](LICENSE)
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
 Display energy entities in an entity card row. This integrate with the builtin
@@ -60,6 +62,8 @@ Thanks to:
 - [thomasloven][thomasloven] for all its work and numerous example of lovelace elements
 - MindFreeze for [ha-sankey-chart][sankey] which showed how to work with energy stats
 
+[releases-shield]: https://img.shields.io/github/release/zeronounours/lovelace-energy-entity-row.svg?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/zeronounours/lovelace-energy-entity-row.svg?style=for-the-badge
 [energy-date-picker]: https://www.home-assistant.io/dashboards/energy/#energy-date-picker
 [template]: https://github.com/custom-cards/boilerplate-card
 [thomasloven]: https://github.com/thomasloven
