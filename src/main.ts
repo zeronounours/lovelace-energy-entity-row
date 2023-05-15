@@ -82,8 +82,10 @@ class EnergyEntityRow extends SubscribeMixin(LitElement) {
           const stats = await getStatistics(this.hass, data, [this.config.entity]);
           const states: HassEntities = {};
           Object.keys(stats).forEach(id => {
-            if (this.hass.states[id]) {
-              states[id] = { ...this.hass.states[id], state: formatState(stats[id], this.config.round !== undefined ? this.config.round : 2) };
+            if (this.hass.states[id] && stats[id] !== null) {
+              states[id] = {
+                ...this.hass.states[id],
+                state: formatState(stats[id]!, this.config.round !== undefined ? this.config.round : 2) };
             }
           });
           this.states = states;

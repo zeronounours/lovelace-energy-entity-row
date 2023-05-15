@@ -123,7 +123,7 @@ const calculateStatisticSumGrowth = (
   return endSum - startSum;
 };
 
-export async function getStatistics(hass: HomeAssistant, energyData: EnergyData, devices: string[]): Promise<Record<string, number>> {
+export async function getStatistics(hass: HomeAssistant, energyData: EnergyData, devices: string[]): Promise<Record<string, number | null>> {
   const dayDifference = differenceInDays(
     energyData.end || new Date(),
     energyData.start
