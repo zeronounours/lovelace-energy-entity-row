@@ -1,11 +1,10 @@
 import { STATE_NOT_RUNNING } from "home-assistant-js-websocket";
 import { HomeAssistant } from "custom-card-helpers";
 
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const createEntityNotFoundWarning = (
   hass: HomeAssistant,
   entityId: string
-) =>
+): string =>
   hass.config.state !== STATE_NOT_RUNNING
     ? hass.localize(
         "ui.panel.lovelace.warning.entity_not_found",
@@ -13,6 +12,11 @@ export const createEntityNotFoundWarning = (
         entityId || "[empty]"
       )
     : hass.localize("ui.panel.lovelace.warning.starting");
+
+export const createEntityErrorWarning = (
+  error: Error,
+  entityId: string
+): string => `${error} Entity ${entityId || "[empty]"}`
 
 export function formatState(state: number, round: number): string {
   let rounded: string;

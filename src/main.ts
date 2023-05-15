@@ -11,7 +11,7 @@ import { EnergyCollection,
   getStatistics,
 } from './energy';
 import { SubscribeMixin } from './subscribe-mixin';
-import { createEntityNotFoundWarning, formatState } from './utils';
+import { createEntityNotFoundWarning, createEntityErrorWarning, formatState } from './utils';
 
 
 export interface EnergyEntityConfig extends EntityConfig {
@@ -26,7 +26,7 @@ class EnergyEntityRow extends SubscribeMixin(LitElement) {
 
   @state() private states: HassEntities = {};
   @state() private entityIds: string[] = [];
-  @state() private error?: Error | unknown;
+  @state() private error?: Error;
   @state() private config!: EnergyEntityConfig;
 
   setConfig(config) {
@@ -37,7 +37,11 @@ class EnergyEntityRow extends SubscribeMixin(LitElement) {
   }
 
   shouldUpdate(changedProps) {
-    if (changedProps.has('config') || changedProps.has('states')) {
+    if (
+      changedProps.has('config') ||
+      changedProps.has('states') ||
+      changedProps.has('error')
+    ) {
       return true;
     }
     return false;
@@ -70,7 +74,7 @@ class EnergyEntityRow extends SubscribeMixin(LitElement) {
     setTimeout(() => {
       if (!this.error && !Object.keys(this.states).length) {
         this.error = new Error('Something went wrong. No energy data received.');
-        console.debug(getEnergyDataCollection(this.hass));
+        console.debug(this.error, getEnergyDataCollection(this.hass));
       }
     }, ENERGY_DATA_TIMEOUT * 2);
     energyPromise.catch(err => {
@@ -85,6 +89,7 @@ class EnergyEntityRow extends SubscribeMixin(LitElement) {
             if (this.hass.states[id] && stats[id] !== null) {
               states[id] = {
                 ...this.hass.states[id],
+                // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
                 state: formatState(stats[id]!, this.config.round !== undefined ? this.config.round : 2) };
             }
           });
@@ -100,6 +105,14 @@ class EnergyEntityRow extends SubscribeMixin(LitElement) {
     }
 
     const stateObj = this.states[this.config.entity];
+
+    if (!!this.error) {
+      return html`
+        <hui-warning>
+          ${createEntityErrorWarning(this.error, this.config.entity)}
+        </hui-warning>
+      `;
+    }
 
     if (!stateObj) {
       return html`
