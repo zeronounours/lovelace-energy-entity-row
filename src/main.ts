@@ -11,8 +11,12 @@ import { EnergyCollection,
   getStatistics,
 } from './energy';
 import { SubscribeMixin } from './subscribe-mixin';
-import { createEntityNotFoundWarning } from './utils';
+import { createEntityNotFoundWarning, formatState } from './utils';
 
+
+export interface EnergyEntityConfig extends EntityConfig {
+  round?: number;
+}
 
 const ENERGY_DATA_TIMEOUT = 10000;
 
@@ -23,7 +27,7 @@ class EnergyEntityRow extends SubscribeMixin(LitElement) {
   @state() private states: HassEntities = {};
   @state() private entityIds: string[] = [];
   @state() private error?: Error | unknown;
-  @state() private config!: EntityConfig;
+  @state() private config!: EnergyEntityConfig;
 
   setConfig(config) {
     if (!config) {
@@ -79,7 +83,7 @@ class EnergyEntityRow extends SubscribeMixin(LitElement) {
           const states: HassEntities = {};
           Object.keys(stats).forEach(id => {
             if (this.hass.states[id]) {
-              states[id] = { ...this.hass.states[id], state: String(stats[id]) };
+              states[id] = { ...this.hass.states[id], state: formatState(stats[id], this.config.round !== undefined ? this.config.round : 2) };
             }
           });
           this.states = states;
@@ -105,20 +109,23 @@ class EnergyEntityRow extends SubscribeMixin(LitElement) {
 
     return html`
       <hui-generic-entity-row .hass=${this.hass} .config=${this.config}>
-        ${computeStateDisplay(
-          this.hass.localize,
-          stateObj,
-          this.hass.locale,
-        )}
+        <div
+          class="text-content value"
+        >
+          ${computeStateDisplay(
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            this.hass!.localize,
+            stateObj,
+            this.hass.locale,
+          )}
+        </div>
       </hui-generic-entity-row>
     `;
-    return html`
-    `
   }
 
   static get styles() {
     return [
-      (customElements.get("hui-generic-entity-row") as any)?.styles,
+      (customElements.get("hui-sensor-entity-row") as any)?.styles,
     ];
   }
 }
@@ -126,9 +133,9 @@ class EnergyEntityRow extends SubscribeMixin(LitElement) {
 if (!customElements.get("energy-entity-row")) {
   customElements.define("energy-entity-row", EnergyEntityRow);
   console.info(
-    `%cENERGY-ENTITY-ROW ${pjson.version} IS INSTALLED`,
-    "color: green; font-weight: bold",
-    ""
+    `%c ENERGY-ENTITY-ROW %c Version ${pjson.version} `,
+    'color: orange; font-weight: bold; background: black',
+    'color: white; font-weight: bold; background: dimgray',
   );
 }
 

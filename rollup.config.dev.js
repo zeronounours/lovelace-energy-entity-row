@@ -8,7 +8,7 @@ import json from '@rollup/plugin-json';
 export default {
   input: ['src/main.ts'],
   output: {
-    dir: './dist',
+    file: 'dist/energy-entity-row.js',
     format: 'es',
   },
   plugins: [

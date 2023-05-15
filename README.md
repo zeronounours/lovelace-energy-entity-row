@@ -33,7 +33,10 @@ entities:
 
 ## Options
 
-This element has no options apart from the basic options:
+The following options can be added to the element:
+- `round`: number of decimal to round numbers
+
+In addition, all basic options can be used:
 - `entity` (**required**)
 - `name`
 - `icon`

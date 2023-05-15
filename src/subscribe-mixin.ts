@@ -5,7 +5,7 @@ import { HomeAssistant } from "custom-card-helpers";
 import { UnsubscribeFunc } from "home-assistant-js-websocket";
 import { PropertyValues, ReactiveElement } from "lit";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { property } from "lit/decorators";
+import { property } from "lit/decorators.js";
 
 export interface HassSubscribeElement {
   hassSubscribe(): UnsubscribeFunc[];
