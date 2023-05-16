@@ -63,6 +63,7 @@ Thanks to:
 - MindFreeze for [ha-sankey-chart][sankey] which showed how to work with energy stats
 
 [releases-shield]: https://img.shields.io/github/release/zeronounours/lovelace-energy-entity-row.svg?style=for-the-badge
+[releases]: https://github.com/zeronounours/lovelace-energy-entity-row/releases
 [license-shield]: https://img.shields.io/github/license/zeronounours/lovelace-energy-entity-row.svg?style=for-the-badge
 [energy-date-picker]: https://www.home-assistant.io/dashboards/energy/#energy-date-picker
 [template]: https://github.com/custom-cards/boilerplate-card

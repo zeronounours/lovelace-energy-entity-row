@@ -8,6 +8,8 @@ jobs:
   release:
     name: Prepare release
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v1
 
@@ -18,7 +20,7 @@ jobs:
           npm run build
 
       # Upload build file to the releas as an asset.
-      - name: Upload zip to release
+      - name: Upload to release
         uses: svenstaro/upload-release-action@v1-release
 
         with:
