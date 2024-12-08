@@ -25,7 +25,6 @@ class EnergyEntityRow extends SubscribeMixin(LitElement) {
   @property({ attribute: false }) public hass!: HomeAssistant;
 
   @state() private states: HassEntities = {};
-  @state() private entityIds: string[] = [];
   @state() private error?: Error;
   @state() private config!: EnergyEntityConfig;
 

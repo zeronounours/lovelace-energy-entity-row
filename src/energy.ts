@@ -6,7 +6,7 @@
  */
 import { HomeAssistant } from "custom-card-helpers";
 import { Collection } from "home-assistant-js-websocket";
-import { addHours, differenceInDays } from 'date-fns';
+import { differenceInDays } from 'date-fns';
 
 export interface EnergyData {
   start: Date;
@@ -29,15 +29,15 @@ export interface Statistics {
 }
 
 export interface StatisticValue {
-  statistic_id: string;
-  start: string;
-  end: string;
-  last_reset: string | null;
-  max: number | null;
-  mean: number | null;
-  min: number | null;
-  sum: number | null;
-  state: number | null;
+  start: number;
+  end: number;
+  change?: number | null;
+  last_reset?: number | null;
+  max?: number | null;
+  mean?: number | null;
+  min?: number | null;
+  sum?: number | null;
+  state?: number | null;
 }
 
 export interface EnergySource {
@@ -77,6 +77,17 @@ export interface EnergyCollection extends Collection<EnergyData> {
   _active: number;
 }
 
+const statisticTypes = [
+  "change",
+  "last_reset",
+  "max",
+  "mean",
+  "min",
+  "state",
+  "sum",
+] as const;
+export type StatisticsTypes = (typeof statisticTypes)[number][];
+
 export const getEnergyDataCollection = (
   hass: HomeAssistant,
   key = '_energy'
@@ -96,6 +107,7 @@ const fetchStatistics = (
   statistic_ids?: string[],
   period: "5minute" | "hour" | "day" | "week" | "month" = "hour",
   // units?: StatisticsUnitConfiguration
+  types?: StatisticsTypes,
 ) =>
   hass.callWS<Statistics>({
     type: "recorder/statistics_during_period",
@@ -104,59 +116,68 @@ const fetchStatistics = (
     statistic_ids,
     period,
     // units,
+    types,
   });
 
 const calculateStatisticSumGrowth = (
-  values: StatisticValue[]
+  values: StatisticValue[],
+  start: Date,
+  end: Date,
 ): number | null => {
-  if (!values || values.length < 2) {
+  if (!values) {
     return null;
   }
-  const endSum = values[values.length - 1].sum;
-  if (endSum === null) {
-    return null;
+
+  let sum: number | null = null;
+  const start_millis = start.getTime();
+  const end_millis = end.getTime();
+
+  for (const value of values) {
+    if (value.change === null || value.change === undefined) {
+      continue;
+    }
+
+    // if start / end is in the middle of a period, consider a linear regression
+    // to add only a portion
+    let change = value.change;
+    if (value.start < start_millis && value.end > end_millis) {
+      change = value.change * (end_millis - start_millis) / (value.end - value.start);
+    } else if (value.start < start_millis) {
+        change = value.change * (value.end - start_millis) / (value.end - value.start);
+    } else if (value.end > end_millis) {
+        change = value.change * (end_millis - value.start) / (value.end - value.start);
+    }
+
+    if (sum === null) {
+      sum = change;
+    } else {
+      sum += change;
+    }
   }
-  const startSum = values[0].sum;
-  if (startSum === null) {
-    return endSum;
-  }
-  return endSum - startSum;
+
+  return sum;
 };
 
 export async function getStatistics(hass: HomeAssistant, energyData: EnergyData, devices: string[]): Promise<Record<string, number | null>> {
+  const end = energyData.end || new Date();
   const dayDifference = differenceInDays(
-    energyData.end || new Date(),
+    end,
     energyData.start
   );
-  const startMinHour = addHours(energyData.start, -1);
   const period = dayDifference > 35 ? "month" : dayDifference > 2 ? "day" : "hour";
-
-
 
   const data = await fetchStatistics(
     hass,
-    startMinHour,
-    energyData.end,
+    energyData.start,
+    end,
     devices,
     period,
     // units
+    ["change"],
   );
-
-  Object.values(data).forEach((stat) => {
-    // if the start of the first value is after the requested period, we have the first data point, and should add a zero point
-    if (stat.length && new Date(stat[0].start) > startMinHour) {
-      stat.unshift({
-        ...stat[0],
-        start: startMinHour.toISOString(),
-        end: startMinHour.toISOString(),
-        sum: 0,
-        state: 0,
-      });
-    }
-  });
 
   return devices.reduce((states, id) => ({
     ...states,
-    [id]: calculateStatisticSumGrowth(data[id]),
+    [id]: calculateStatisticSumGrowth(data[id], energyData.start, end),
   }), {})
 }
