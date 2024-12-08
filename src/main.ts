@@ -137,12 +137,6 @@ class EnergyEntityRow extends SubscribeMixin(LitElement) {
       </hui-generic-entity-row>
     `;
   }
-
-  static get styles() {
-    return [
-      (customElements.get("hui-sensor-entity-row") as any)?.styles,
-    ].filter(e => e !== undefined && e !== null);
-  }
 }
 
 if (!customElements.get("energy-entity-row")) {
