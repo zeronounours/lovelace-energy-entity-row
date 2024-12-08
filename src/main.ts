@@ -141,7 +141,7 @@ class EnergyEntityRow extends SubscribeMixin(LitElement) {
   static get styles() {
     return [
       (customElements.get("hui-sensor-entity-row") as any)?.styles,
-    ];
+    ].filter(e => e !== undefined && e !== null);
   }
 }
 
