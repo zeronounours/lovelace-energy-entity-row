@@ -100,47 +100,38 @@ class EnergyEntityRow extends SubscribeMixin(LitElement) {
   }
 
   render() {
-    if (!this.config || !this.hass) {
-      return nothing;
-    }
-
     const stateObj = this.states[this.config.entity];
-
-    if (!!this.error) {
-      return html`
-        <hui-warning>
-          ${createEntityErrorWarning(this.error, this.config.entity)}
-        </hui-warning>
-      `;
-    }
-
-    if (!stateObj) {
-      return html`
-        <hui-warning>
-          ${createEntityNotFoundWarning(this.hass, this.config.entity)}
-        </hui-warning>
-      `;
-    }
-
     const options: Intl.NumberFormatOptions = {};
     if (this.config.round !== null) {
       options.maximumFractionDigits = this.config.round ?? 2;
     }
+
     return html`
-      <hui-generic-entity-row .hass=${this.hass} .config=${this.config}>
-        <div
-          class="text-content value"
-        >
-          ${computeStateDisplay(
-            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-            this.hass!.localize,
-            stateObj,
-            this.hass.locale,
-            undefined,
-            options,
-          )}
-        </div>
-      </hui-generic-entity-row>
+      <div>
+        ${(!this.config || !this.hass)
+          ? nothing
+          : (!!this.error)
+            ? html`<hui-warning>${createEntityErrorWarning(this.error, this.config.entity)}</hui-warning>`
+            : (!stateObj)
+              ? html`<hui-warning>${createEntityNotFoundWarning(this.hass, this.config.entity)}</hui-warning>`
+              : html`
+                <hui-generic-entity-row .hass=${this.hass} .config=${this.config}>
+                  <div
+                    class="text-content value"
+                  >
+                    ${computeStateDisplay(
+                      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+                      this.hass!.localize,
+                      stateObj,
+                      this.hass.locale,
+                      undefined,
+                      options,
+                    )}
+                  </div>
+                </hui-generic-entity-row>
+              `
+        }
+      </div>
     `;
   }
 }
