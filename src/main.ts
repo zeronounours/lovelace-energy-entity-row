@@ -3,7 +3,7 @@ import { LitElement, html, nothing } from "lit";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { property, state } from "lit/decorators.js";
 import pjson from "../package.json";
-import { HomeAssistant, EntityConfig, computeStateDisplay } from "custom-card-helpers";
+import { HomeAssistant, EntityConfig } from "custom-card-helpers";
 import { HassEntities } from 'home-assistant-js-websocket';
 
 import { EnergyCollection,
@@ -11,7 +11,7 @@ import { EnergyCollection,
   getStatistics,
 } from './energy';
 import { SubscribeMixin } from './subscribe-mixin';
-import { createEntityNotFoundWarning, createEntityErrorWarning, formatState } from './utils';
+import { computeStateDisplay, createEntityNotFoundWarning, createEntityErrorWarning } from './utils';
 
 
 export interface EnergyEntityConfig extends EntityConfig {
@@ -89,7 +89,8 @@ class EnergyEntityRow extends SubscribeMixin(LitElement) {
               states[id] = {
                 ...this.hass.states[id],
                 // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-                state: formatState(stats[id]!, this.config.round !== undefined ? this.config.round : 2) };
+                state: stats[id]!.toString(),
+              };
             }
           });
           this.states = states;
@@ -121,6 +122,10 @@ class EnergyEntityRow extends SubscribeMixin(LitElement) {
       `;
     }
 
+    const options: Intl.NumberFormatOptions = {};
+    if (this.config.round !== null) {
+      options.maximumFractionDigits = this.config.round ?? 2;
+    }
     return html`
       <hui-generic-entity-row .hass=${this.hass} .config=${this.config}>
         <div
@@ -131,6 +136,8 @@ class EnergyEntityRow extends SubscribeMixin(LitElement) {
             this.hass!.localize,
             stateObj,
             this.hass.locale,
+            undefined,
+            options,
           )}
         </div>
       </hui-generic-entity-row>

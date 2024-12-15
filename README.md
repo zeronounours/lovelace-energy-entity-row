@@ -46,7 +46,7 @@ in the view
 ## Options
 
 The following options can be added to the element:
-- `round`: number of decimal to round numbers
+- `round`: number of decimal to round number (default to 2). To display all decimal digits, explicitly set this option to `null`
 
 In addition, all basic options can be used:
 - `entity` (**required**)
