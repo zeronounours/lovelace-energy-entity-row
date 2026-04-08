@@ -6,7 +6,7 @@ import pjson from "../package.json";
 import { HomeAssistant, EntityConfig } from "custom-card-helpers";
 import { HassEntities } from 'home-assistant-js-websocket';
 
-import { EnergyCollection,
+import { Conversions, EnergyCollection,
   getEnergyDataCollection,
   getStatistics,
 } from './energy';
@@ -82,7 +82,16 @@ class EnergyEntityRow extends SubscribeMixin(LitElement) {
     return [
       energyPromise.then(async collection => {
         return collection.subscribe(async data => {
-          const stats = await getStatistics(this.hass, data, [this.config.entity]);
+          // dummy conversions to stay compatible with getStatistics expected args
+          // TODO implement conversion
+          const conversions: Conversions = {
+            convert_units_to: "",
+            co2_intensity_entity: "",
+            gas_co2_intensity: 0,
+            electricity_price: null,
+            gas_price: null,
+          };
+          const stats = await getStatistics(this.hass, data, [this.config.entity], conversions);
           const states: HassEntities = {};
           Object.keys(stats).forEach(id => {
             if (this.hass.states[id] && stats[id] !== null) {
